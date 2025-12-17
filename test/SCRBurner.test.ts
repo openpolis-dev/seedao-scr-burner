@@ -1,14 +1,14 @@
 import { expect } from "chai";
 import hre from "hardhat";
-import { TestSCR, TestUSDT, SCRBurner } from "../src/types/contracts";
+import { TestSCR, TestUSDT, SCRBurnerUpgradeable } from "../src/types/contracts";
 import type { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
 const { ethers } = hre;
 
-describe("SCRBurner", function () {
+describe("SCRBurnerUpgradeable", function () {
   let scrToken: TestSCR;
   let usdtToken: TestUSDT;
-  let burnerContract: SCRBurner;
+  let burnerContract: SCRBurnerUpgradeable;
   let owner: SignerWithAddress;
   let user1: SignerWithAddress;
   let user2: SignerWithAddress;
@@ -29,14 +29,22 @@ describe("SCRBurner", function () {
     usdtToken = await TestUSDTFactory.deploy();
     await usdtToken.waitForDeployment();
 
-    // Deploy burner contract
-    const SCRBurnerFactory = await ethers.getContractFactory("SCRBurner");
-    burnerContract = await SCRBurnerFactory.deploy(
-      await scrToken.getAddress(),
-      await usdtToken.getAddress(),
-      INITIAL_RATE_NUMERATOR,
-      INITIAL_RATE_DENOMINATOR
-    );
+    // Deploy upgradeable burner contract with UUPS proxy
+    const upgrades = (hre as any).upgrades;
+    const SCRBurnerFactory = await ethers.getContractFactory("SCRBurnerUpgradeable");
+    burnerContract = await upgrades.deployProxy(
+      SCRBurnerFactory,
+      [
+        await scrToken.getAddress(),
+        await usdtToken.getAddress(),
+        INITIAL_RATE_NUMERATOR,
+        INITIAL_RATE_DENOMINATOR
+      ],
+      {
+        kind: 'uups',
+        initializer: 'initialize'
+      }
+    ) as unknown as SCRBurnerUpgradeable;
     await burnerContract.waitForDeployment();
 
     // Fund burner contract with USDT
