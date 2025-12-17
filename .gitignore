@@ -34,5 +34,6 @@ typechain-types
 
 # TypeChain
 src/types/contracts
+frontend/src/types/contracts/
 
 CLAUDE.md
