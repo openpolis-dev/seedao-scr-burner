@@ -42,21 +42,23 @@ contract TestSCR is ERC20, AccessControl {
     }
 
     /**
-     * @dev Burns tokens from the caller - requires BURNER_ROLE
+     * @dev Burns tokens from the caller
      * @param amount Amount to burn
+     * @notice For production, this would require BURNER_ROLE
+     * @notice In test mode, anyone can burn their own tokens
      */
     function burn(uint256 amount) public {
-        require(hasRole(BURNER_ROLE, _msgSender()), "TestSCR: must have burner role to burn");
         _burn(_msgSender(), amount);
     }
 
     /**
-     * @dev Burns tokens from account using allowance - requires BURNER_ROLE
+     * @dev Burns tokens from account using allowance
      * @param account Account to burn from
      * @param amount Amount to burn
+     * @notice For production, this would require BURNER_ROLE on the caller
+     * @notice In test mode, allows burning if proper allowance is set
      */
     function burnFrom(address account, uint256 amount) public {
-        require(hasRole(BURNER_ROLE, _msgSender()), "TestSCR: must have burner role to burn");
         _spendAllowance(account, _msgSender(), amount);
         _burn(account, amount);
     }

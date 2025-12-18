@@ -73,6 +73,101 @@ describe("SCRBurnerUpgradeable", function () {
     it("Should set the correct owner", async function () {
       expect(await burnerContract.owner()).to.equal(owner.address);
     });
+
+    it("Should prevent re-initialization", async function () {
+      await expect(
+        burnerContract.initialize(
+          await scrToken.getAddress(),
+          await usdtToken.getAddress(),
+          INITIAL_RATE_NUMERATOR,
+          INITIAL_RATE_DENOMINATOR
+        )
+      ).to.be.revertedWithCustomError(burnerContract, "InvalidInitialization");
+    });
+
+    it("Should revert with InvalidAddress if SCR token is zero address", async function () {
+      const SCRBurnerFactory = await ethers.getContractFactory("SCRBurnerUpgradeable");
+      const upgrades = (hre as any).upgrades;
+
+      await expect(
+        upgrades.deployProxy(
+          SCRBurnerFactory,
+          [
+            ethers.ZeroAddress,
+            await usdtToken.getAddress(),
+            INITIAL_RATE_NUMERATOR,
+            INITIAL_RATE_DENOMINATOR
+          ],
+          {
+            kind: 'uups',
+            initializer: 'initialize'
+          }
+        )
+      ).to.be.revertedWithCustomError(SCRBurnerFactory, "InvalidAddress");
+    });
+
+    it("Should revert with InvalidAddress if USDT token is zero address", async function () {
+      const SCRBurnerFactory = await ethers.getContractFactory("SCRBurnerUpgradeable");
+      const upgrades = (hre as any).upgrades;
+
+      await expect(
+        upgrades.deployProxy(
+          SCRBurnerFactory,
+          [
+            await scrToken.getAddress(),
+            ethers.ZeroAddress,
+            INITIAL_RATE_NUMERATOR,
+            INITIAL_RATE_DENOMINATOR
+          ],
+          {
+            kind: 'uups',
+            initializer: 'initialize'
+          }
+        )
+      ).to.be.revertedWithCustomError(SCRBurnerFactory, "InvalidAddress");
+    });
+
+    it("Should revert with RateTooLow if rate numerator is too low", async function () {
+      const SCRBurnerFactory = await ethers.getContractFactory("SCRBurnerUpgradeable");
+      const upgrades = (hre as any).upgrades;
+
+      await expect(
+        upgrades.deployProxy(
+          SCRBurnerFactory,
+          [
+            await scrToken.getAddress(),
+            await usdtToken.getAddress(),
+            0, // Below MIN_RATE_NUMERATOR
+            INITIAL_RATE_DENOMINATOR
+          ],
+          {
+            kind: 'uups',
+            initializer: 'initialize'
+          }
+        )
+      ).to.be.revertedWithCustomError(SCRBurnerFactory, "RateTooLow");
+    });
+
+    it("Should revert with RateTooHigh if rate numerator is too high", async function () {
+      const SCRBurnerFactory = await ethers.getContractFactory("SCRBurnerUpgradeable");
+      const upgrades = (hre as any).upgrades;
+
+      await expect(
+        upgrades.deployProxy(
+          SCRBurnerFactory,
+          [
+            await scrToken.getAddress(),
+            await usdtToken.getAddress(),
+            101, // Above MAX_RATE_NUMERATOR
+            INITIAL_RATE_DENOMINATOR
+          ],
+          {
+            kind: 'uups',
+            initializer: 'initialize'
+          }
+        )
+      ).to.be.revertedWithCustomError(SCRBurnerFactory, "RateTooHigh");
+    });
   });
 
   describe("Burn SCR for USDT", function () {
@@ -128,7 +223,7 @@ describe("SCRBurnerUpgradeable", function () {
     it("Should revert if amount is zero", async function () {
       await expect(
         burnerContract.connect(user1).burnSCRForUSDT(0)
-      ).to.be.revertedWith("SCRBurner: amount must be greater than zero");
+      ).to.be.revertedWithCustomError(burnerContract, "AmountMustBeGreaterThanZero");
     });
 
     it("Should revert if user hasn't approved SCR", async function () {
@@ -148,7 +243,7 @@ describe("SCRBurnerUpgradeable", function () {
 
       await expect(
         burnerContract.connect(user1).burnSCRForUSDT(scrAmount)
-      ).to.be.revertedWith("SCRBurner: insufficient USDT in pool");
+      ).to.be.revertedWithCustomError(burnerContract, "InsufficientUSDTInPool");
     });
   });
 
@@ -191,7 +286,25 @@ describe("SCRBurnerUpgradeable", function () {
     it("Should revert if denominator is zero", async function () {
       await expect(
         burnerContract.setBurnRate(5, 0)
-      ).to.be.revertedWith("SCRBurner: denominator cannot be zero");
+      ).to.be.revertedWithCustomError(burnerContract, "DenominatorCannotBeZero");
+    });
+
+    it("Should revert if rate numerator is too low", async function () {
+      await expect(
+        burnerContract.setBurnRate(0, 100)
+      ).to.be.revertedWithCustomError(burnerContract, "RateTooLow");
+    });
+
+    it("Should revert if rate numerator is too high", async function () {
+      await expect(
+        burnerContract.setBurnRate(101, 100)
+      ).to.be.revertedWithCustomError(burnerContract, "RateTooHigh");
+    });
+
+    it("Should revert if denominator does not match FIXED_RATE_DENOMINATOR", async function () {
+      await expect(
+        burnerContract.setBurnRate(5, 200)
+      ).to.be.revertedWithCustomError(burnerContract, "DenominatorCannotBeZero");
     });
   });
 
@@ -286,7 +399,15 @@ describe("SCRBurnerUpgradeable", function () {
 
     it("Should return correct SCR balance", async function () {
       const scrBalance = await burnerContract.getSCRBalance();
-      expect(scrBalance).to.equal(0); // No SCR burned yet
+      expect(scrBalance).to.equal(0); // Should always be 0 since tokens are burned
+
+      // Even after burning, SCR balance should remain 0
+      const scrAmount = ethers.parseEther("100");
+      await scrToken.connect(user1).approve(await burnerContract.getAddress(), scrAmount);
+      await burnerContract.connect(user1).burnSCRForUSDT(scrAmount);
+
+      const scrBalanceAfter = await burnerContract.getSCRBalance();
+      expect(scrBalanceAfter).to.equal(0); // Still 0, tokens were burned not transferred
     });
   });
 });
