@@ -18,6 +18,16 @@
       "type": "error"
     },
     {
+      "inputs": [],
+      "name": "AmountMustBeGreaterThanZero",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "DenominatorCannotBeZero",
+      "type": "error"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -46,6 +56,21 @@
     {
       "inputs": [],
       "name": "FailedCall",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InsufficientBalance",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InsufficientUSDTInPool",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidAddress",
       "type": "error"
     },
     {
@@ -82,7 +107,27 @@
     },
     {
       "inputs": [],
+      "name": "RateTooHigh",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RateTooLow",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "ReentrancyGuardReentrantCall",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TransferFailed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "USDTAmountTooSmall",
       "type": "error"
     },
     {
@@ -274,6 +319,45 @@
     },
     {
       "inputs": [],
+      "name": "FIXED_RATE_DENOMINATOR",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_RATE_NUMERATOR",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_RATE_NUMERATOR",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "UPGRADE_INTERFACE_VERSION",
       "outputs": [
         {
@@ -310,7 +394,7 @@
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "",
+          "name": "usdtAmount",
           "type": "uint256"
         }
       ],
@@ -354,7 +438,7 @@
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "",
+          "name": "balance",
           "type": "uint256"
         }
       ],
@@ -367,7 +451,7 @@
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "",
+          "name": "balance",
           "type": "uint256"
         }
       ],
@@ -486,7 +570,7 @@
       "name": "scrToken",
       "outputs": [
         {
-          "internalType": "contract IERC20",
+          "internalType": "contract ISCRBurnable",
           "name": "",
           "type": "address"
         }

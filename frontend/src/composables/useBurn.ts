@@ -84,6 +84,47 @@ export function useBurn() {
   }
 
   /**
+   * Parse custom contract errors into user-friendly messages
+   */
+  function parseContractError(error: any): string {
+    const errorData = error?.data?.toString() || error?.message || ''
+
+    // Map custom errors to user-friendly messages
+    const errorMap: Record<string, string> = {
+      'AmountMustBeGreaterThanZero': 'Amount must be greater than zero',
+      'USDTAmountTooSmall': 'SCR amount too small, resulting USDT would be zero',
+      'InsufficientUSDTInPool': 'Insufficient USDT in pool. Please try a smaller amount or contact support.',
+      'RateTooLow': 'Exchange rate is too low',
+      'RateTooHigh': 'Exchange rate is too high',
+      'InvalidAddress': 'Invalid token address',
+      'DenominatorCannotBeZero': 'Invalid exchange rate configuration',
+      'InsufficientBalance': 'Insufficient balance',
+      'TransferFailed': 'Token transfer failed',
+    }
+
+    // Check if error contains any of our custom error names
+    for (const [errorName, message] of Object.entries(errorMap)) {
+      if (errorData.includes(errorName)) {
+        return message
+      }
+    }
+
+    // Check for common errors
+    if (errorData.includes('insufficient funds') || errorData.includes('insufficient balance')) {
+      return 'Insufficient balance for transaction'
+    }
+    if (errorData.includes('user rejected') || errorData.includes('User denied')) {
+      return 'Transaction rejected by user'
+    }
+    if (errorData.includes('EnforcedPause')) {
+      return 'Contract is currently paused. Burns are temporarily disabled.'
+    }
+
+    // Return original error message if no match
+    return error?.reason || error?.message || 'Transaction failed'
+  }
+
+  /**
    * Burn SCR tokens
    */
   async function burnSCR(amount: string): Promise<BurnResult> {
@@ -157,15 +198,17 @@ export function useBurn() {
         data: error.data,
       })
 
+      const userFriendlyError = parseContractError(error)
+
       txStatus.value = {
         status: 'error',
         message: 'Burn failed',
-        error: error.message || 'Unknown error',
+        error: userFriendlyError,
       }
 
       return {
         success: false,
-        error: error.message || 'Unknown error',
+        error: userFriendlyError,
       }
     }
   }
