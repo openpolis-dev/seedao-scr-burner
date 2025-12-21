@@ -21,6 +21,14 @@
           class="amount-input"
           :disabled="!isConnected || isTransacting"
         />
+        <button
+          @click="setMaxAmount"
+          :disabled="!isConnected || isTransacting || balances.scr === 0n"
+          class="max-btn"
+          type="button"
+        >
+          MAX
+        </button>
         <span class="input-token">SCR</span>
       </div>
       <p v-if="scrAmount" class="calculated-amount">
@@ -112,6 +120,14 @@ const buttonText = computed(() => {
   if (validationError.value) return validationError.value
   return 'Burn SCR'
 })
+
+function setMaxAmount() {
+  if (balances.value.scr === 0n) return
+
+  // Convert the balance from wei to ether (18 decimals)
+  const maxAmount = Number(balances.value.scr) / 1e18
+  scrAmount.value = maxAmount.toString()
+}
 
 async function handleBurn() {
   if (!canBurn.value) return
@@ -205,7 +221,7 @@ onMounted(() => {
 
 .amount-input {
   width: 100%;
-  padding: 0.75rem 4rem 0.75rem 1rem;
+  padding: 0.75rem 6.5rem 0.75rem 1rem;
   font-size: 1.125rem;
   font-weight: 600;
   border: 2px solid #e5e7eb;
@@ -220,6 +236,37 @@ onMounted(() => {
 
 .amount-input:disabled {
   background: #f9fafb;
+  cursor: not-allowed;
+}
+
+.max-btn {
+  position: absolute;
+  right: 4rem;
+  padding: 0.375rem 0.75rem;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.025em;
+}
+
+.max-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+}
+
+.max-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.max-btn:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
   cursor: not-allowed;
 }
 

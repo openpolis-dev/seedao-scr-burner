@@ -8,9 +8,9 @@
 export const config = {
   // Contract Addresses (update after deployment)
   contracts: {
-    scrToken: '0xE4825A1a31a76f72befa47f7160B132AA03813E0',  // ScoreV4 on Polygon mainnet
-    usdtToken: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', // USDT on Polygon mainnet
-    burner: '0x0000000000000000000000000000000000000000',    // UPDATE AFTER DEPLOYMENT
+    scrToken: '0xEADbc3CA511e6bCbfd925015c7FE6cA5F78c8fce',  // Test SCR token on Polygon
+    usdtToken: '0xC3B8cf5cCE37fCbD4bd037C69a3F3d49944Ad8C8', // Test USDT token on Polygon
+    burner: '0xF5EC2f25Def2dDD30C9FE0f4cF485fe27C660336',    // SCRBurner (Proxy) on Polygon
   },
 
   // Supported Networks

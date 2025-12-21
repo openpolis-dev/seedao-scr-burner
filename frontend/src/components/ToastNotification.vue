@@ -81,7 +81,7 @@ function handleClose() {
   position: fixed;
   top: 5rem;
   right: 1.5rem;
-  max-width: 400px;
+  width: 400px;
   background: white;
   border-radius: 0.75rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -225,7 +225,7 @@ function handleClose() {
     top: 4rem;
     right: 1rem;
     left: 1rem;
-    max-width: none;
+    width: auto;
   }
 }
 </style>
