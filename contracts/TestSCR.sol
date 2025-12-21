@@ -13,7 +13,7 @@ contract TestSCR is ERC20, AccessControl {
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    constructor() ERC20("Score", "SCR") {
+    constructor() ERC20("Test Score", "TSCR") {
         // Grant admin and roles to deployer
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);

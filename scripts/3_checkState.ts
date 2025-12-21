@@ -1,4 +1,5 @@
 import hre from "hardhat";
+import { MetamaskConnector } from "@web3camp/hardhat-metamask-connector";
 
 /**
  * Check SCRBurner contract state
@@ -7,8 +8,8 @@ import hre from "hardhat";
  * Use this to verify state before and after upgrades.
  *
  * Usage:
- * Local:   PROXY_ADDRESS=0x... npx hardhat run scripts/checkState.ts --network localhost
- * Polygon: PROXY_ADDRESS=0x... npx hardhat run scripts/checkState.ts --network polygon
+ * Local:   PROXY_ADDRESS=0x... npx hardhat run scripts/3_checkState.ts --network localhost
+ * Polygon: PROXY_ADDRESS=0x... npx hardhat run scripts/3_checkState.ts --network polygon
  */
 
 async function main() {
@@ -18,18 +19,20 @@ async function main() {
 
   console.log(`🔍 Checking SCRBurner state on ${networkName}...\n`);
 
-  const [signer] = await hre.ethers.getSigners();
-  console.log("📝 Using account:", signer.address);
-  console.log(`💰 Account balance: ${hre.ethers.formatEther(await hre.ethers.provider.getBalance(signer.address))} ${currencySymbol}\n`);
+  const connector = new MetamaskConnector();
+  const signer = await connector.getSigner();
+  const signerAddress = await signer.getAddress();
+  console.log("📝 Using account:", signerAddress);
+  console.log(`💰 Account balance: ${hre.ethers.formatEther(await hre.ethers.provider.getBalance(signerAddress))} ${currencySymbol}\n`);
 
-  // Get proxy address
-  const PROXY_ADDRESS = process.env.PROXY_ADDRESS ||
-    (isLocalhost ? "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0" : "");
+  // Get proxy address - REQUIRED
+  const PROXY_ADDRESS = process.env.PROXY_ADDRESS;
 
   if (!PROXY_ADDRESS) {
-    console.error("❌ Error: PROXY_ADDRESS not set!");
-    console.log("\nUsage:");
-    console.log(`PROXY_ADDRESS=0x... npx hardhat run scripts/checkState.ts --network ${networkName}`);
+    console.error("❌ Error: PROXY_ADDRESS is required!\n");
+    console.log("Usage:");
+    console.log(`  PROXY_ADDRESS=0x... npx hardhat run scripts/3_checkState.ts --network ${networkName}`);
+    console.log("\n💡 Get the proxy address from the 1_deploySCRBurner.ts output");
     process.exit(1);
   }
 
@@ -37,7 +40,7 @@ async function main() {
   console.log("");
 
   // Get the contract
-  const burnerContract = await hre.ethers.getContractAt("SCRBurnerUpgradeable", PROXY_ADDRESS);
+  const burnerContract = await hre.ethers.getContractAt("SCRBurnerUpgradeable", PROXY_ADDRESS, signer);
 
   // Read all state variables
   console.log("=" .repeat(70));
@@ -71,7 +74,7 @@ async function main() {
     const owner = await burnerContract.owner();
     console.log("\n👤 Contract Owner:");
     console.log("   Owner:      ", owner);
-    console.log("   Is you?     ", owner.toLowerCase() === signer.address.toLowerCase() ? "✅ Yes" : "❌ No");
+    console.log("   Is you?     ", owner.toLowerCase() === signerAddress.toLowerCase() ? "✅ Yes" : "❌ No");
 
     // 5. Paused state
     const isPaused = await burnerContract.paused();
@@ -103,8 +106,12 @@ async function main() {
 
   } catch (error: any) {
     console.error("\n❌ Error reading contract state:", error.message);
+    connector.close();
     process.exit(1);
   }
+
+  // Close the MetaMask connector server
+  connector.close();
 }
 
 main().catch((error) => {

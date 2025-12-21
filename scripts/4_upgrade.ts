@@ -1,4 +1,5 @@
 import hre from "hardhat";
+import { MetamaskConnector } from "@web3camp/hardhat-metamask-connector";
 
 /**
  * Universal upgrade script for SCRBurner contract
@@ -7,13 +8,13 @@ import hre from "hardhat";
  * The network is specified via --network flag.
  *
  * Prerequisites:
- * - Set PROXY_ADDRESS environment variable
- * - For Polygon: Set POLYGON_RPC_URL and PRIVATE_KEY in .env
+ * - Set PROXY_ADDRESS environment variable (get from 1_deploySCRBurner.ts output)
+ * - Connect MetaMask with the owner account of the proxy contract
  * - Must be owner of the proxy contract
  *
  * Usage:
- * Local:   PROXY_ADDRESS=0x... npx hardhat run scripts/upgrade.ts --network localhost
- * Polygon: PROXY_ADDRESS=0x... npx hardhat run scripts/upgrade.ts --network polygon
+ * Local:   PROXY_ADDRESS=0x... npx hardhat run scripts/4_upgrade.ts --network localhost
+ * Polygon: PROXY_ADDRESS=0x... npx hardhat run scripts/4_upgrade.ts --network polygon
  */
 async function main() {
   const upgrades = (hre as any).upgrades;
@@ -25,34 +26,37 @@ async function main() {
 
   console.log(`🔄 Starting upgrade process on ${networkName}...\n`);
 
-  const [deployer] = await hre.ethers.getSigners();
-  console.log("📝 Upgrading with account:", deployer.address);
-  console.log(`💰 Account balance: ${hre.ethers.formatEther(await hre.ethers.provider.getBalance(deployer.address))} ${currencySymbol}\n`);
+  const connector = new MetamaskConnector();
+  const deployer = await connector.getSigner();
+  const deployerAddress = await deployer.getAddress();
+  console.log("📝 Upgrading with account:", deployerAddress);
+  console.log(`💰 Account balance: ${hre.ethers.formatEther(await hre.ethers.provider.getBalance(deployerAddress))} ${currencySymbol}\n`);
 
-  // Get proxy address - default for localhost, required for others
-  const PROXY_ADDRESS = process.env.PROXY_ADDRESS ||
-    (isLocalhost ? "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0" : "");
+  // Get proxy address - REQUIRED
+  const PROXY_ADDRESS = process.env.PROXY_ADDRESS;
 
   if (!PROXY_ADDRESS) {
-    console.error("❌ Error: PROXY_ADDRESS not set!");
-    console.log("\nUsage:");
-    console.log(`PROXY_ADDRESS=0x... npx hardhat run scripts/upgrade.ts --network ${networkName}`);
+    console.error("❌ Error: PROXY_ADDRESS is required!\n");
+    console.log("Usage:");
+    console.log(`  PROXY_ADDRESS=0x... npx hardhat run scripts/4_upgrade.ts --network ${networkName}`);
+    console.log("\n💡 Get the proxy address from the 1_deploySCRBurner.ts output");
     process.exit(1);
   }
 
   console.log("📋 Proxy address to upgrade:", PROXY_ADDRESS);
 
   // Verify deployer is the owner
-  const proxyContract = await hre.ethers.getContractAt("SCRBurnerUpgradeable", PROXY_ADDRESS);
+  const proxyContract = await hre.ethers.getContractAt("SCRBurnerUpgradeable", PROXY_ADDRESS, deployer);
   const owner = await proxyContract.owner();
 
   console.log("📋 Current owner:", owner);
 
-  if (owner.toLowerCase() !== deployer.address.toLowerCase()) {
+  if (owner.toLowerCase() !== deployerAddress.toLowerCase()) {
     console.error("\n❌ Error: You are not the owner of this contract!");
-    console.log("   Your address:", deployer.address);
+    console.log("   Your address:", deployerAddress);
     console.log("   Owner address:", owner);
     console.log("\n   Only the owner can upgrade the contract.");
+    connector.close();
     process.exit(1);
   }
 
@@ -75,7 +79,7 @@ async function main() {
 
   // Deploy new implementation
   console.log("\n📦 Deploying new implementation...");
-  const SCRBurnerV2Factory = await hre.ethers.getContractFactory("SCRBurnerUpgradeable");
+  const SCRBurnerV2Factory = await hre.ethers.getContractFactory("SCRBurnerUpgradeable", deployer);
 
   // Upgrade to new implementation
   console.log("🔄 Upgrading proxy to new implementation...");
@@ -110,7 +114,7 @@ async function main() {
   console.log("Proxy address (unchanged):", PROXY_ADDRESS);
   console.log("Old implementation:       ", currentImplementation);
   console.log("New implementation:       ", newImplementation);
-  console.log("Upgraded by:              ", deployer.address);
+  console.log("Upgraded by:              ", deployerAddress);
   console.log("=".repeat(70));
 
   console.log("\n✅ Upgrade successful!");
@@ -119,11 +123,14 @@ async function main() {
 
   // Final verification
   console.log("\n🔍 Final verification...");
-  const contract = await hre.ethers.getContractAt("SCRBurnerUpgradeable", PROXY_ADDRESS);
+  const contract = await hre.ethers.getContractAt("SCRBurnerUpgradeable", PROXY_ADDRESS, deployer);
   const [finalNumerator, finalDenominator] = await contract.getCurrentRate();
   console.log("✅ Contract is responsive. Current rate:", finalNumerator.toString(), "/", finalDenominator.toString());
 
   console.log("\n✨ Upgrade process complete!\n");
+
+  // Close the MetaMask connector server
+  connector.close();
 }
 
 main().catch((error) => {

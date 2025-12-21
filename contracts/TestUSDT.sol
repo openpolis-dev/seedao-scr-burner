@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * Uses 6 decimals like real USDT
  */
 contract TestUSDT is ERC20, Ownable {
-    constructor() ERC20("Test USDT", "USDT") Ownable(msg.sender) {
+    constructor() ERC20("Test USDT", "TUSDT") Ownable(msg.sender) {
         // Mint initial supply to deployer
         _mint(msg.sender, 1000000 * 10**decimals());
     }
