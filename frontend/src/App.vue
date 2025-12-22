@@ -388,7 +388,7 @@ function handleCloseToast() {
 
 /* Hero Section */
 .hero-section {
-  padding: 2rem 2rem 1.5rem;
+  padding: 1.25rem 2rem 1rem;
   text-align: center;
 }
 
@@ -398,15 +398,15 @@ function handleCloseToast() {
 }
 
 .hero-title {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 800;
   color: white;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.375rem;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .hero-subtitle {
-  font-size: 1.125rem;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.9);
   font-weight: 400;
 }
@@ -414,25 +414,25 @@ function handleCloseToast() {
 /* Main Content */
 .main-content {
   flex: 1;
-  padding: 1.5rem 2rem;
+  padding: 1rem 2rem;
 }
 
 .container {
-  max-width: 800px;
+  max-width: 720px;
   margin: 0 auto;
 }
 
 .main-card-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 /* Cards */
 .card {
   background: white;
-  border-radius: 1.5rem;
-  padding: 1.5rem;
+  border-radius: 1rem;
+  padding: 1.25rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -445,14 +445,14 @@ function handleCloseToast() {
   font-size: 1.125rem;
   font-weight: 600;
   color: #1f2937;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 /* Divider */
 .divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
-  margin: 1.5rem 0;
+  margin: 1rem 0;
 }
 
 /* Not Connected State */

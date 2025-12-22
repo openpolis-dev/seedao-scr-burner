@@ -48,15 +48,15 @@ onMounted(() => {
 .balance-display {
   background: white;
   border-radius: 0.75rem;
-  padding: 0.875rem 1rem;
+  padding: 0.75rem 0.875rem;
   border: 1px solid #e5e7eb;
 }
 
 .balance-title {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: #6b7280;
-  margin-bottom: 0.625rem;
+  margin-bottom: 0.5rem;
 }
 
 .balances {

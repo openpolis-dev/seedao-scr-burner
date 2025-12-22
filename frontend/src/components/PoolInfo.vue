@@ -88,19 +88,19 @@ onUnmounted(() => {
 <style scoped>
 .pool-info {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.75rem;
+  margin-bottom: 0;
 }
 
 .info-card {
   flex: 1;
   background: white;
   border-radius: 0.75rem;
-  padding: 1.25rem;
+  padding: 1rem;
   border: 2px solid #e5e7eb;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   transition: all 0.2s;
 }
 
@@ -120,7 +120,7 @@ onUnmounted(() => {
 }
 
 .card-icon {
-  font-size: 2rem;
+  font-size: 1.75rem;
   flex-shrink: 0;
 }
 
@@ -130,55 +130,55 @@ onUnmounted(() => {
 }
 
 .card-label {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: #6b7280;
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.25rem;
 }
 
 .card-value {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #111827;
 }
 
 .ended-text {
   color: #dc2626;
-  font-size: 1.125rem;
+  font-size: 1rem;
 }
 
 .countdown {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
 }
 
 .time-unit {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 3rem;
+  min-width: 2.75rem;
 }
 
 .time-value {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #7c3aed;
   line-height: 1;
 }
 
 .time-label {
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   color: #6b7280;
-  margin-top: 0.25rem;
+  margin-top: 0.125rem;
 }
 
 .time-separator {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #9ca3af;
   line-height: 1;
-  margin: 0 -0.25rem;
+  margin: 0 -0.125rem;
 }
 
 /* Responsive */

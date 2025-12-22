@@ -169,50 +169,50 @@ onMounted(() => {
 .burn-interface {
   background: white;
   border-radius: 0.75rem;
-  padding: 1.25rem;
+  padding: 1rem;
   border: 1px solid #e5e7eb;
 }
 
 .burn-title {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #111827;
-  margin-bottom: 0.875rem;
+  margin-bottom: 0.75rem;
 }
 
 .rate-display {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.625rem 0.75rem;
+  padding: 0.5rem 0.625rem;
   background: #f0f9ff;
   border: 1px solid #bae6fd;
   border-radius: 0.5rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .rate-label {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: #0369a1;
   font-weight: 500;
 }
 
 .rate-value {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   color: #0c4a6e;
 }
 
 .input-section {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .input-label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: #374151;
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.25rem;
 }
 
 .input-wrapper {
@@ -223,8 +223,8 @@ onMounted(() => {
 
 .amount-input {
   width: 100%;
-  padding: 0.75rem 6.5rem 0.75rem 1rem;
-  font-size: 1.125rem;
+  padding: 0.625rem 6.5rem 0.625rem 0.875rem;
+  font-size: 1rem;
   font-weight: 600;
   border: 2px solid #e5e7eb;
   border-radius: 0.5rem;
@@ -281,23 +281,23 @@ onMounted(() => {
 }
 
 .calculated-amount {
-  margin-top: 0.625rem;
-  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
   color: #6b7280;
   text-align: right;
 }
 
 .calculated-amount strong {
   color: #059669;
-  font-size: 1rem;
+  font-size: 0.9375rem;
 }
 
 .burn-btn {
   width: 100%;
-  padding: 0.875rem 1rem;
+  padding: 0.75rem 1rem;
   background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   color: white;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   border: none;
   border-radius: 0.5rem;
