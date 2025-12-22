@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useContract } from '@/composables/useContract'
 import { useWagmiWallet } from '@/composables/useWagmiWallet'
 
@@ -53,7 +53,7 @@ const {
   fetchPoolInfo
 } = useContract()
 
-const { provider } = useWagmiWallet()
+const { provider, address } = useWagmiWallet()
 
 // Ref to track seconds for countdown update
 const currentTime = ref(Math.floor(Date.now() / 1000))
@@ -66,14 +66,30 @@ function pad(num: number): string {
 
 // Update current time every second for countdown
 function startCountdown() {
-  intervalId = window.setInterval(() => {
-    currentTime.value = Math.floor(Date.now() / 1000)
-  }, 1000)
+  if (intervalId === null) {
+    intervalId = window.setInterval(() => {
+      currentTime.value = Math.floor(Date.now() / 1000)
+    }, 1000)
+  }
 }
 
-onMounted(async () => {
-  if (provider.value) {
-    await fetchPoolInfo()
+// Watch for provider and address to become available
+watch([address, provider], ([newAddress, newProvider]) => {
+  console.log('[PoolInfo] Watch triggered:', { address: newAddress, hasProvider: !!newProvider })
+  if (newAddress && newProvider) {
+    console.log('[PoolInfo] Fetching pool info...')
+    fetchPoolInfo()
+    startCountdown()
+  }
+}, { immediate: true })
+
+onMounted(() => {
+  console.log('[PoolInfo] Mounted:', {
+    hasProvider: !!provider.value,
+    address: address.value
+  })
+  if (provider.value && address.value) {
+    fetchPoolInfo()
     startCountdown()
   }
 })
