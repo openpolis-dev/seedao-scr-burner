@@ -239,21 +239,19 @@ contract SCRBurnerUpgradeable is
     }
 
     /**
-     * @dev Withdraw USDT from pool - only owner (emergency)
-     * @param amount Amount of USDT to withdraw
-     * @notice Use this function to recover USDT in emergency situations
-     * @notice Emits USDTWithdrawn event
+     * @dev Withdraw all USDT from pool - only owner (emergency)
+     * @notice Use this function to recover all USDT in emergency situations
+     * @notice Withdraws the entire USDT balance to the owner
+     * @notice Emits USDTWithdrawn event with the amount withdrawn
      */
-    function withdrawUSDT(uint256 amount) external onlyOwner {
-        if (amount == 0) revert AmountMustBeGreaterThanZero();
-
+    function withdrawUSDT() external onlyOwner {
         uint256 balance = usdtToken.balanceOf(address(this));
-        if (balance < amount) revert InsufficientBalance();
+        if (balance == 0) revert InsufficientBalance();
 
-        bool success = usdtToken.transfer(msg.sender, amount);
+        bool success = usdtToken.transfer(msg.sender, balance);
         if (!success) revert TransferFailed();
 
-        emit USDTWithdrawn(msg.sender, amount);
+        emit USDTWithdrawn(msg.sender, balance);
     }
 
     /**

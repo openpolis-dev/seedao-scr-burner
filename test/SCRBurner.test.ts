@@ -235,8 +235,7 @@ describe("SCRBurnerUpgradeable", function () {
 
     it("Should revert if pool has insufficient USDT", async function () {
       // Drain the pool
-      const poolBalance = await burnerContract.getUSDTPoolBalance();
-      await burnerContract.withdrawUSDT(poolBalance);
+      await burnerContract.withdrawUSDT();
 
       const scrAmount = ethers.parseEther("100");
       await scrToken.connect(user1).approve(await burnerContract.getAddress(), scrAmount);
@@ -322,16 +321,22 @@ describe("SCRBurnerUpgradeable", function () {
       expect(poolAfter - poolBefore).to.equal(fundAmount);
     });
 
-    it("Should allow owner to withdraw USDT", async function () {
-      const withdrawAmount = ethers.parseUnits("1000", 6);
+    it("Should allow owner to withdraw all USDT", async function () {
+      const poolBalance = await burnerContract.getUSDTPoolBalance();
+      expect(poolBalance).to.be.gt(0); // Ensure there's USDT in the pool
+
       const ownerBalanceBefore = await usdtToken.balanceOf(owner.address);
 
-      await expect(burnerContract.withdrawUSDT(withdrawAmount))
+      // Withdraw all USDT
+      await expect(burnerContract.withdrawUSDT())
         .to.emit(burnerContract, "USDTWithdrawn")
-        .withArgs(owner.address, withdrawAmount);
+        .withArgs(owner.address, poolBalance);
 
       const ownerBalanceAfter = await usdtToken.balanceOf(owner.address);
-      expect(ownerBalanceAfter - ownerBalanceBefore).to.equal(withdrawAmount);
+      const poolBalanceAfter = await burnerContract.getUSDTPoolBalance();
+
+      expect(ownerBalanceAfter - ownerBalanceBefore).to.equal(poolBalance);
+      expect(poolBalanceAfter).to.equal(0); // Pool should be empty
     });
 
     it("Should revert if non-owner tries to fund pool", async function () {
@@ -344,10 +349,8 @@ describe("SCRBurnerUpgradeable", function () {
     });
 
     it("Should revert if non-owner tries to withdraw", async function () {
-      const withdrawAmount = ethers.parseUnits("1000", 6);
-
       await expect(
-        burnerContract.connect(user1).withdrawUSDT(withdrawAmount)
+        burnerContract.connect(user1).withdrawUSDT()
       ).to.be.revertedWithCustomError(burnerContract, "OwnableUnauthorizedAccount");
     });
   });
