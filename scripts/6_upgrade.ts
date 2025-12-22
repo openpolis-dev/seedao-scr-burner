@@ -13,8 +13,8 @@ import { MetamaskConnector } from "@web3camp/hardhat-metamask-connector";
  * - Must be owner of the proxy contract
  *
  * Usage:
- * Local:   PROXY_ADDRESS=0x... npx hardhat run scripts/4_upgrade.ts --network localhost
- * Polygon: PROXY_ADDRESS=0x... npx hardhat run scripts/4_upgrade.ts --network polygon
+ * Local:   PROXY_ADDRESS=0x... npx hardhat run scripts/6_upgrade.ts --network localhost
+ * Polygon: PROXY_ADDRESS=0x... npx hardhat run scripts/6_upgrade.ts --network polygon
  */
 async function main() {
   const upgrades = (hre as any).upgrades;
@@ -38,7 +38,7 @@ async function main() {
   if (!PROXY_ADDRESS) {
     console.error("❌ Error: PROXY_ADDRESS is required!\n");
     console.log("Usage:");
-    console.log(`  PROXY_ADDRESS=0x... npx hardhat run scripts/4_upgrade.ts --network ${networkName}`);
+    console.log(`  PROXY_ADDRESS=0x... npx hardhat run scripts/6_upgrade.ts --network ${networkName}`);
     console.log("\n💡 Get the proxy address from the 1_deploySCRBurner.ts output");
     process.exit(1);
   }

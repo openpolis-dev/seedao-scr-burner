@@ -8,8 +8,8 @@ import { MetamaskConnector } from "@web3camp/hardhat-metamask-connector";
  * Use this to verify state before and after upgrades.
  *
  * Usage:
- * Local:   PROXY_ADDRESS=0x... npx hardhat run scripts/3_checkState.ts --network localhost
- * Polygon: PROXY_ADDRESS=0x... npx hardhat run scripts/3_checkState.ts --network polygon
+ * Local:   PROXY_ADDRESS=0x... npx hardhat run scripts/5_checkState.ts --network localhost
+ * Polygon: PROXY_ADDRESS=0x... npx hardhat run scripts/5_checkState.ts --network polygon
  */
 
 async function main() {
@@ -31,7 +31,7 @@ async function main() {
   if (!PROXY_ADDRESS) {
     console.error("❌ Error: PROXY_ADDRESS is required!\n");
     console.log("Usage:");
-    console.log(`  PROXY_ADDRESS=0x... npx hardhat run scripts/3_checkState.ts --network ${networkName}`);
+    console.log(`  PROXY_ADDRESS=0x... npx hardhat run scripts/5_checkState.ts --network ${networkName}`);
     console.log("\n💡 Get the proxy address from the 1_deploySCRBurner.ts output");
     process.exit(1);
   }

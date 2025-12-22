@@ -74,13 +74,13 @@ async function main() {
   console.log("   SCR Token:  ", scrAddress);
   console.log("   USDT Token: ", usdtAddress);
 
-  // Initial burn rate: 1 SCR = 0.03 USDT (3/100)
-  const RATE_NUMERATOR = 3;
-  const RATE_DENOMINATOR = 100;
+  // Initial burn rate: 1 SCR = 0.0034 USDT (34/10000)
+  const RATE_NUMERATOR = 34;
+  const RATE_DENOMINATOR = 10000;
 
   console.log("\n📋 Burn rate configuration:");
   console.log("   1 SCR =", RATE_NUMERATOR, "/", RATE_DENOMINATOR, "USDT");
-  console.log("   1 SCR =", (RATE_NUMERATOR / RATE_DENOMINATOR).toFixed(2), "USDT\n");
+  console.log("   1 SCR =", (RATE_NUMERATOR / RATE_DENOMINATOR).toFixed(4), "USDT\n");
 
   // Deploy SCRBurnerUpgradeable with UUPS proxy
   console.log("📦 Deploying SCRBurnerUpgradeable (with UUPS proxy)...");
