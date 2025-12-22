@@ -9,13 +9,13 @@ import { MetamaskConnector } from "@web3camp/hardhat-metamask-connector";
  *
  * Prerequisites:
  * - You must be the owner of the burner contract
- * - Set BURNER_CONTRACT environment variable
+ * - Set PROXY_ADDRESS environment variable
  *
  * Usage:
- * BURNER_CONTRACT=0x... npx hardhat run scripts/withdrawUSDT.ts --network polygon
+ * PROXY_ADDRESS=0x... npx hardhat run scripts/withdrawUSDT.ts --network polygon
  *
  * Example:
- * BURNER_CONTRACT=0xF5EC2f25Def2dDD30C9FE0f4cF485fe27C660336 \
+ * PROXY_ADDRESS=0xF5EC2f25Def2dDD30C9FE0f4cF485fe27C660336 \
  * npx hardhat run scripts/withdrawUSDT.ts --network polygon
  */
 async function main() {
@@ -34,22 +34,22 @@ async function main() {
   console.log(`💰 Account balance: ${hre.ethers.formatEther(await hre.ethers.provider.getBalance(ownerAddress))} ${currencySymbol}\n`);
 
   // Get burner contract address - REQUIRED
-  const burnerAddress = process.env.BURNER_CONTRACT;
+  const proxyAddress = process.env.PROXY_ADDRESS;
 
-  if (!burnerAddress) {
-    console.error("❌ Error: BURNER_CONTRACT address not provided!\n");
+  if (!proxyAddress) {
+    console.error("❌ Error: PROXY_ADDRESS not provided!\n");
     console.log("Usage:");
-    console.log("  BURNER_CONTRACT=0x... npx hardhat run scripts/withdrawUSDT.ts --network", networkName);
+    console.log("  PROXY_ADDRESS=0x... npx hardhat run scripts/withdrawUSDT.ts --network", networkName);
     connector.close();
     process.exit(1);
   }
 
   console.log("📋 Configuration:");
-  console.log("   Burner Contract:", burnerAddress);
+  console.log("   Burner Contract:", proxyAddress);
   console.log("");
 
   // Get contract instance
-  const burner = await hre.ethers.getContractAt("SCRBurnerUpgradeable", burnerAddress, owner);
+  const burner = await hre.ethers.getContractAt("SCRBurnerUpgradeable", proxyAddress, owner);
 
   // Verify owner
   console.log("🔍 Verifying ownership...");

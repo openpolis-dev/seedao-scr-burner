@@ -13,11 +13,11 @@ import { MetamaskConnector } from "@web3camp/hardhat-metamask-connector";
  * - Set required environment variables
  *
  * Usage:
- * USDT_TOKEN=0x... BURNER_CONTRACT=0x... AMOUNT=1000 npx hardhat run scripts/fundUSDTPool.ts --network polygon
+ * USDT_TOKEN=0x... PROXY_ADDRESS=0x... AMOUNT=1000 npx hardhat run scripts/fundUSDTPool.ts --network polygon
  *
  * Example:
  * USDT_TOKEN=0xC3B8cf5cCE37fCbD4bd037C69a3F3d49944Ad8C8 \
- * BURNER_CONTRACT=0xF5EC2f25Def2dDD30C9FE0f4cF485fe27C660336 \
+ * PROXY_ADDRESS=0xF5EC2f25Def2dDD30C9FE0f4cF485fe27C660336 \
  * AMOUNT=1000 \
  * npx hardhat run scripts/fundUSDTPool.ts --network polygon
  */
@@ -38,13 +38,13 @@ async function main() {
 
   // Get addresses from environment - REQUIRED
   const usdtAddress = process.env.USDT_TOKEN;
-  const burnerAddress = process.env.BURNER_CONTRACT;
+  const proxyAddress = process.env.PROXY_ADDRESS;
   const amountStr = process.env.AMOUNT;
 
-  if (!usdtAddress || !burnerAddress || !amountStr) {
+  if (!usdtAddress || !proxyAddress || !amountStr) {
     console.error("❌ Error: Required parameters not provided!\n");
     console.log("Usage:");
-    console.log("  USDT_TOKEN=0x... BURNER_CONTRACT=0x... AMOUNT=1000 \\");
+    console.log("  USDT_TOKEN=0x... PROXY_ADDRESS=0x... AMOUNT=1000 \\");
     console.log("  npx hardhat run scripts/fundUSDTPool.ts --network", networkName);
     console.log("\n💡 AMOUNT is in USDT (e.g., 1000 means 1000 USDT)");
     connector.close();
@@ -60,13 +60,13 @@ async function main() {
 
   console.log("📋 Configuration:");
   console.log("   USDT Token:      ", usdtAddress);
-  console.log("   Burner Contract: ", burnerAddress);
+  console.log("   Burner Contract: ", proxyAddress);
   console.log("   Amount:          ", amount, "USDT");
   console.log("");
 
   // Get contract instances
   const usdt = await hre.ethers.getContractAt("IERC20", usdtAddress, owner);
-  const burner = await hre.ethers.getContractAt("SCRBurnerUpgradeable", burnerAddress, owner);
+  const burner = await hre.ethers.getContractAt("SCRBurnerUpgradeable", proxyAddress, owner);
 
   // Verify owner
   const contractOwner = await burner.owner();
@@ -99,7 +99,7 @@ async function main() {
 
   // Step 1: Approve burner contract to spend USDT
   console.log("📝 Step 1/2: Approving burner contract to spend USDT...");
-  const approveTx = await usdt.approve(burnerAddress, usdtAmount);
+  const approveTx = await usdt.approve(proxyAddress, usdtAmount);
   console.log("   Transaction hash:", approveTx.hash);
   console.log("   Waiting for confirmation...");
   await approveTx.wait();
