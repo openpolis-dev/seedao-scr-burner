@@ -28,7 +28,7 @@ export const config = {
     polygon: {
       id: 137,
       name: 'Polygon Mainnet',
-      rpcUrl: 'https://polygon-rpc.com',
+      rpcUrl: 'https://polygon.llamarpc.com', // More reliable public RPC
       nativeCurrency: {
         name: 'MATIC',
         symbol: 'MATIC',

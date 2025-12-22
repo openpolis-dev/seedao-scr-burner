@@ -50,10 +50,10 @@ const wagmiConfigRaw = createConfig({
           walletConnect({
             projectId: config.walletConnect.projectId,
             metadata: {
-              name: 'SCR Burner',
-              description: 'Burn SCR tokens for USDT',
-              url: 'http://localhost:3000',
-              icons: ['http://localhost:3000/favicon.ico'],
+              name: 'SCR Conversion',
+              description: 'Exchange and burn your SCR tokens for USDT at a fixed rate on Polygon',
+              url: typeof window !== 'undefined' ? window.location.origin : 'https://claim.seedao.xyz',
+              icons: [typeof window !== 'undefined' ? `${window.location.origin}/favicon.ico` : 'https://claim.seedao.xyz/favicon.ico'],
             },
             showQrModal: false,
           }),
@@ -70,24 +70,39 @@ const wagmiConfigRaw = createConfig({
 export const wagmiConfig = wagmiConfigRaw
 export { defaultChain }
 
-// Lazy-initialize Web3Modal - only create when user connects wallet
+// Create Web3Modal instance
 let modalInstance: ReturnType<typeof createWeb3Modal> | null = null
 
 export const getModal = () => {
-  if (!config.walletConnect.projectId) return null
+  if (!config.walletConnect.projectId) {
+    console.warn('WalletConnect Project ID not configured')
+    return null
+  }
 
   if (!modalInstance) {
-    modalInstance = createWeb3Modal({
-      // @ts-ignore - Wagmi connector types have minor version incompatibilities between packages
-      wagmiConfig,
-      projectId: config.walletConnect.projectId,
-      enableAnalytics: false,
-      themeMode: 'light',
-      themeVariables: {
-        '--w3m-accent': '#7c3aed',
-        '--w3m-border-radius-master': '8px',
-      },
-    })
+    try {
+      modalInstance = createWeb3Modal({
+        // @ts-ignore - Wagmi connector types have minor version incompatibilities between packages
+        wagmiConfig,
+        projectId: config.walletConnect.projectId,
+        enableAnalytics: false,
+        themeMode: 'light',
+        themeVariables: {
+          '--w3m-accent': '#7c3aed',
+          '--w3m-border-radius-master': '8px',
+        },
+        chains: [polygon, hardhatLocal],
+        defaultChain: defaultChain,
+        featuredWalletIds: [
+          'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', // MetaMask
+          '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0', // Trust Wallet
+        ],
+      })
+      console.log('Web3Modal initialized successfully')
+    } catch (error) {
+      console.error('Failed to initialize Web3Modal:', error)
+      return null
+    }
   }
 
   return modalInstance
