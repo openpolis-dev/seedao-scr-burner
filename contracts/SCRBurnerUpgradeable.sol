@@ -64,6 +64,9 @@ contract SCRBurnerUpgradeable is
     uint8 private scrTokenDecimals;
     uint8 private usdtTokenDecimals;
 
+    /// @dev Burn end timestamp (0 means no end time)
+    uint256 public burnEndTime;
+
     /// @dev Rate bounds to prevent extreme values
     uint256 public constant MIN_RATE_NUMERATOR = 1; // Minimum 0.01 (1/100)
     uint256 public constant MAX_RATE_NUMERATOR = 100; // Maximum 1.0 (100/100)
@@ -79,6 +82,7 @@ contract SCRBurnerUpgradeable is
     error InsufficientUSDTInPool();
     error InsufficientBalance();
     error TransferFailed();
+    error BurnEnded();
 
     // Events
     event SCRBurned(
@@ -95,12 +99,13 @@ contract SCRBurnerUpgradeable is
     );
     event USDTPoolFunded(address indexed from, uint256 amount);
     event USDTWithdrawn(address indexed to, uint256 amount);
+    event BurnEndTimeUpdated(uint256 oldEndTime, uint256 newEndTime);
 
     /**
      * @dev Storage gap for future upgrades
      * @notice Allows adding new state variables without shifting down storage in child contracts
      */
-    uint256[44] private __gap;
+    uint256[43] private __gap;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -155,6 +160,11 @@ contract SCRBurnerUpgradeable is
         whenNotPaused
     {
         if (scrAmount == 0) revert AmountMustBeGreaterThanZero();
+
+        // Check if burn period has ended (0 means no end time)
+        if (burnEndTime != 0 && block.timestamp >= burnEndTime) {
+            revert BurnEnded();
+        }
 
         // Calculate USDT amount to send
         uint256 usdtAmount = calculateUSDTAmount(scrAmount);
@@ -221,6 +231,18 @@ contract SCRBurnerUpgradeable is
 
         rateNumerator = newNumerator;
         rateDenominator = newDenominator;
+    }
+
+    /**
+     * @dev Set burn end time - only owner
+     * @param endTime Unix timestamp when burning ends (0 means no end time)
+     * @notice After this time, users cannot burn SCR tokens anymore
+     * @notice Use 0 to remove the end time restriction
+     * @notice Emits BurnEndTimeUpdated event
+     */
+    function setBurnEndTime(uint256 endTime) external onlyOwner {
+        emit BurnEndTimeUpdated(burnEndTime, endTime);
+        burnEndTime = endTime;
     }
 
     /**
