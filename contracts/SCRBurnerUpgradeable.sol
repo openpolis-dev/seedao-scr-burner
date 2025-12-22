@@ -56,7 +56,7 @@ contract SCRBurnerUpgradeable is
     IERC20 public usdtToken;
 
     // Exchange rate: 1 SCR = (rateNumerator / rateDenominator) USDT
-    // Default: 3/100 = 0.03 USDT per SCR
+    // Example: 34/10000 = 0.0034 USDT per SCR
     uint256 public rateNumerator;
     uint256 public rateDenominator;
 
@@ -68,9 +68,9 @@ contract SCRBurnerUpgradeable is
     uint256 public burnEndTime;
 
     /// @dev Rate bounds to prevent extreme values
-    uint256 public constant MIN_RATE_NUMERATOR = 1; // Minimum 0.01 (1/100)
-    uint256 public constant MAX_RATE_NUMERATOR = 100; // Maximum 1.0 (100/100)
-    uint256 public constant FIXED_RATE_DENOMINATOR = 100; // Fixed at 100 for clarity
+    uint256 public constant MIN_RATE_NUMERATOR = 1; // Minimum 0.0001 (1/10000)
+    uint256 public constant MAX_RATE_NUMERATOR = 10000; // Maximum 1.0 (10000/10000)
+    uint256 public constant FIXED_RATE_DENOMINATOR = 10000; // Fixed at 10000 for finer granularity
 
     // Custom Errors
     error InvalidAddress();
@@ -116,8 +116,8 @@ contract SCRBurnerUpgradeable is
      * @dev Initializer function (replaces constructor for upgradeable contracts)
      * @param _scrToken Address of SCR token
      * @param _usdtToken Address of USDT token
-     * @param _rateNumerator Initial rate numerator (default: 3)
-     * @param _rateDenominator Initial rate denominator (default: 100)
+     * @param _rateNumerator Initial rate numerator (e.g., 34 for 0.0034 USDT per SCR)
+     * @param _rateDenominator Initial rate denominator (must be 10000)
      * @notice Can only be called once during deployment
      * @notice Rate numerator must be between MIN_RATE_NUMERATOR and MAX_RATE_NUMERATOR
      */
@@ -315,7 +315,7 @@ contract SCRBurnerUpgradeable is
      * @dev Get current exchange rate
      * @return numerator The rate numerator
      * @return denominator The rate denominator
-     * @notice Rate = numerator / denominator (e.g., 3/100 = 0.03 USDT per SCR)
+     * @notice Rate = numerator / denominator (e.g., 34/10000 = 0.0034 USDT per SCR)
      */
     function getCurrentRate() external view returns (uint256 numerator, uint256 denominator) {
         return (rateNumerator, rateDenominator);

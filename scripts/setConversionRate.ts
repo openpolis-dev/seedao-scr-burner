@@ -5,22 +5,24 @@ import { MetamaskConnector } from "@web3camp/hardhat-metamask-connector";
  * Set the conversion rate for SCR to USDT
  *
  * The conversion rate is expressed as numerator/denominator.
- * The denominator is fixed at 100 for clarity.
- * The numerator must be between 1 and 100 (0.01 to 1.0 USDT per SCR).
+ * The denominator is fixed at 10000 for finer granularity.
+ * The numerator must be between 1 and 10000 (0.0001 to 1.0 USDT per SCR).
  *
  * Prerequisites:
  * - You must be the owner of the burner contract
  * - Set PROXY_ADDRESS environment variable
- * - Set RATE_NUMERATOR environment variable (1-100)
+ * - Set RATE_NUMERATOR environment variable (1-10000)
  *
  * Usage:
- * PROXY_ADDRESS=0x... RATE_NUMERATOR=3 npx hardhat run scripts/setConversionRate.ts --network polygon
+ * PROXY_ADDRESS=0x... RATE_NUMERATOR=34 npx hardhat run scripts/setConversionRate.ts --network polygon
  *
  * Examples:
- * - RATE_NUMERATOR=3  -> 0.03 USDT per SCR (3/100)
- * - RATE_NUMERATOR=5  -> 0.05 USDT per SCR (5/100)
- * - RATE_NUMERATOR=10 -> 0.10 USDT per SCR (10/100)
- * - RATE_NUMERATOR=50 -> 0.50 USDT per SCR (50/100)
+ * - RATE_NUMERATOR=34   -> 0.0034 USDT per SCR (34/10000)
+ * - RATE_NUMERATOR=50   -> 0.0050 USDT per SCR (50/10000)
+ * - RATE_NUMERATOR=100  -> 0.0100 USDT per SCR (100/10000)
+ * - RATE_NUMERATOR=500  -> 0.0500 USDT per SCR (500/10000)
+ * - RATE_NUMERATOR=1000 -> 0.1000 USDT per SCR (1000/10000)
+ * - RATE_NUMERATOR=5000 -> 0.5000 USDT per SCR (5000/10000)
  */
 
 async function main() {
@@ -36,14 +38,14 @@ async function main() {
   }
 
   const rateNumerator = parseInt(rateNumeratorStr, 10);
-  const rateDenominator = 100; // Fixed at 100
+  const rateDenominator = 10000; // Fixed at 10000
 
   if (isNaN(rateNumerator)) {
     throw new Error("RATE_NUMERATOR must be a valid number");
   }
 
-  if (rateNumerator < 1 || rateNumerator > 100) {
-    throw new Error("RATE_NUMERATOR must be between 1 and 100 (0.01 to 1.0 USDT per SCR)");
+  if (rateNumerator < 1 || rateNumerator > 10000) {
+    throw new Error("RATE_NUMERATOR must be between 1 and 10000 (0.0001 to 1.0 USDT per SCR)");
   }
 
   console.log("🔄 Setting Conversion Rate");
@@ -121,10 +123,12 @@ async function main() {
   console.log("✨ Conversion rate updated successfully!");
   console.log("");
   console.log("📝 Examples for different rates:");
-  console.log("  RATE_NUMERATOR=3  -> 0.03 USDT per SCR");
-  console.log("  RATE_NUMERATOR=5  -> 0.05 USDT per SCR");
-  console.log("  RATE_NUMERATOR=10 -> 0.10 USDT per SCR");
-  console.log("  RATE_NUMERATOR=50 -> 0.50 USDT per SCR");
+  console.log("  RATE_NUMERATOR=34   -> 0.0034 USDT per SCR");
+  console.log("  RATE_NUMERATOR=50   -> 0.0050 USDT per SCR");
+  console.log("  RATE_NUMERATOR=100  -> 0.0100 USDT per SCR");
+  console.log("  RATE_NUMERATOR=500  -> 0.0500 USDT per SCR");
+  console.log("  RATE_NUMERATOR=1000 -> 0.1000 USDT per SCR");
+  console.log("  RATE_NUMERATOR=5000 -> 0.5000 USDT per SCR");
 }
 
 main()

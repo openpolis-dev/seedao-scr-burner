@@ -13,8 +13,8 @@ describe("SCRBurnerUpgradeable", function () {
   let user1: SignerWithAddress;
   let user2: SignerWithAddress;
 
-  const INITIAL_RATE_NUMERATOR = 3n;
-  const INITIAL_RATE_DENOMINATOR = 100n;
+  const INITIAL_RATE_NUMERATOR = 34n; // 0.0034 USDT per SCR
+  const INITIAL_RATE_DENOMINATOR = 10000n;
 
   beforeEach(async function () {
     // Get signers
@@ -158,7 +158,7 @@ describe("SCRBurnerUpgradeable", function () {
           [
             await scrToken.getAddress(),
             await usdtToken.getAddress(),
-            101, // Above MAX_RATE_NUMERATOR
+            10001, // Above MAX_RATE_NUMERATOR (10000)
             INITIAL_RATE_DENOMINATOR
           ],
           {
@@ -173,7 +173,7 @@ describe("SCRBurnerUpgradeable", function () {
   describe("Burn SCR for USDT", function () {
     it("Should burn SCR and receive USDT correctly", async function () {
       const scrAmount = ethers.parseEther("100"); // 100 SCR
-      const expectedUSDT = ethers.parseUnits("3", 6); // 3 USDT (100 * 0.03)
+      const expectedUSDT = ethers.parseUnits("0.34", 6); // 0.34 USDT (100 * 0.0034)
 
       // Approve SCR
       await scrToken.connect(user1).approve(await burnerContract.getAddress(), scrAmount);
@@ -201,9 +201,9 @@ describe("SCRBurnerUpgradeable", function () {
 
     it("Should handle different SCR amounts correctly", async function () {
       const testCases = [
-        { scr: "10", expectedUsdt: "0.3" },
-        { scr: "50", expectedUsdt: "1.5" },
-        { scr: "200", expectedUsdt: "6" }
+        { scr: "10", expectedUsdt: "0.034" },   // 10 * 0.0034 = 0.034
+        { scr: "50", expectedUsdt: "0.17" },    // 50 * 0.0034 = 0.17
+        { scr: "200", expectedUsdt: "0.68" }    // 200 * 0.0034 = 0.68
       ];
 
       for (const testCase of testCases) {
@@ -248,8 +248,8 @@ describe("SCRBurnerUpgradeable", function () {
 
   describe("Rate Management", function () {
     it("Should allow owner to update rate", async function () {
-      const newNumerator = 5n;
-      const newDenominator = 100n;
+      const newNumerator = 50n; // 0.005 USDT per SCR
+      const newDenominator = 10000n;
 
       await expect(burnerContract.setBurnRate(newNumerator, newDenominator))
         .to.emit(burnerContract, "BurnRateUpdated")
@@ -261,8 +261,8 @@ describe("SCRBurnerUpgradeable", function () {
     });
 
     it("Should apply new rate to subsequent burns", async function () {
-      // Update rate to 5/100 = 0.05
-      await burnerContract.setBurnRate(5, 100);
+      // Update rate to 500/10000 = 0.05
+      await burnerContract.setBurnRate(500, 10000);
 
       const scrAmount = ethers.parseEther("100");
       const expectedUSDT = ethers.parseUnits("5", 6); // 100 * 0.05 = 5 USDT
@@ -278,7 +278,7 @@ describe("SCRBurnerUpgradeable", function () {
 
     it("Should revert if non-owner tries to update rate", async function () {
       await expect(
-        burnerContract.connect(user1).setBurnRate(5, 100)
+        burnerContract.connect(user1).setBurnRate(50, 10000)
       ).to.be.revertedWithCustomError(burnerContract, "OwnableUnauthorizedAccount");
     });
 
@@ -296,13 +296,13 @@ describe("SCRBurnerUpgradeable", function () {
 
     it("Should revert if rate numerator is too high", async function () {
       await expect(
-        burnerContract.setBurnRate(101, 100)
+        burnerContract.setBurnRate(10001, 10000)
       ).to.be.revertedWithCustomError(burnerContract, "RateTooHigh");
     });
 
     it("Should revert if denominator does not match FIXED_RATE_DENOMINATOR", async function () {
       await expect(
-        burnerContract.setBurnRate(5, 200)
+        burnerContract.setBurnRate(50, 200) // Wrong denominator (should be 10000)
       ).to.be.revertedWithCustomError(burnerContract, "DenominatorCannotBeZero");
     });
   });
@@ -455,7 +455,7 @@ describe("SCRBurnerUpgradeable", function () {
   describe("View Functions", function () {
     it("Should correctly calculate USDT amount", async function () {
       const scrAmount = ethers.parseEther("100");
-      const expectedUSDT = ethers.parseUnits("3", 6); // 100 * 0.03
+      const expectedUSDT = ethers.parseUnits("0.34", 6); // 100 * 0.0034
 
       const calculatedUSDT = await burnerContract.calculateUSDTAmount(scrAmount);
       expect(calculatedUSDT).to.equal(expectedUSDT);
