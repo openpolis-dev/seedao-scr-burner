@@ -81,7 +81,28 @@ async function main() {
     console.log("\n⏸️  Pause State:");
     console.log("   Paused?     ", isPaused ? "⚠️  Yes (contract is paused)" : "✅ No (contract is active)");
 
-    // 6. Get implementation address (via upgrades plugin)
+    // 6. Burn end time
+    const burnEndTime = await burnerContract.burnEndTime();
+    console.log("\n⏰ Burn End Time:");
+    if (burnEndTime === 0n) {
+      console.log("   End Time:   ", "Not set (burns enabled indefinitely)");
+    } else {
+      const endDate = new Date(Number(burnEndTime) * 1000);
+      const now = Math.floor(Date.now() / 1000);
+      const hasEnded = BigInt(now) >= burnEndTime;
+      console.log("   End Time:   ", endDate.toLocaleString());
+      console.log("   Timestamp:  ", burnEndTime.toString());
+      console.log("   Status:     ", hasEnded ? "⚠️  Ended (burns disabled)" : "✅ Active");
+      if (!hasEnded) {
+        const remaining = Number(burnEndTime) - now;
+        const days = Math.floor(remaining / 86400);
+        const hours = Math.floor((remaining % 86400) / 3600);
+        const minutes = Math.floor((remaining % 3600) / 60);
+        console.log("   Remaining:  ", `${days} days, ${hours} hours, ${minutes} minutes`);
+      }
+    }
+
+    // 7. Get implementation address (via upgrades plugin)
     console.log("\n🔧 Upgrade Info:");
     const upgrades = (hre as any).upgrades;
     const implementationAddress = await upgrades.erc1967.getImplementationAddress(PROXY_ADDRESS);
