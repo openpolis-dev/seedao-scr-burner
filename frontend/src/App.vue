@@ -5,7 +5,7 @@
       <div class="navbar-content">
         <div class="logo">
           <span class="logo-icon">🔥</span>
-          <span class="logo-text">SCR Burner</span>
+          <span class="logo-text">SCR Conversion</span>
         </div>
 
         <div class="navbar-right">
@@ -46,9 +46,9 @@
     <!-- Hero Section -->
     <div class="hero-section">
       <div class="hero-content">
-        <h1 class="hero-title">Burn SCR for USDT</h1>
+        <h1 class="hero-title">Convert SCR to USDT</h1>
         <p class="hero-subtitle">
-          Exchange your SCR tokens for USDT at a fixed rate on Polygon
+          Exchange and burn your SCR tokens for USDT at a fixed rate on Polygon
         </p>
       </div>
     </div>
@@ -59,6 +59,9 @@
         <!-- Main Interface (only show when wallet is connected) -->
         <template v-if="isConnected">
           <div class="main-card-wrapper">
+            <!-- Pool Info -->
+            <PoolInfo />
+
             <!-- Main Card -->
             <div class="card card-primary">
               <BalanceDisplay />
@@ -106,6 +109,7 @@
 <script setup lang="ts">
 import { ref, computed, defineAsyncComponent } from 'vue'
 // Lazy load heavy components - only load when wallet is connected
+const PoolInfo = defineAsyncComponent(() => import('./components/PoolInfo.vue'))
 const BalanceDisplay = defineAsyncComponent(() => import('./components/BalanceDisplay.vue'))
 const BurnInterface = defineAsyncComponent(() => import('./components/BurnInterface.vue'))
 const ToastNotification = defineAsyncComponent(() => import('./components/ToastNotification.vue'))

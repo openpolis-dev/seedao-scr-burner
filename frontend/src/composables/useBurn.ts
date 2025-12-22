@@ -15,7 +15,7 @@ const txStatus = ref<TransactionStatus>({
 
 export function useBurn() {
   const { provider, address } = useWagmiWallet()
-  const { getSCRContractWithSigner, getBurnerContractWithSigner, fetchBalances } = useContract()
+  const { getSCRContractWithSigner, getBurnerContractWithSigner, fetchBalances, fetchPoolInfo } = useContract()
 
   /**
    * Check if SCR allowance is sufficient
@@ -100,6 +100,7 @@ export function useBurn() {
       'DenominatorCannotBeZero': 'Invalid exchange rate configuration',
       'InsufficientBalance': 'Insufficient balance',
       'TransferFailed': 'Token transfer failed',
+      'BurnEnded': 'The burn period has ended. Burning is no longer available.',
     }
 
     // Check if error contains any of our custom error names
@@ -179,8 +180,11 @@ export function useBurn() {
           txHash: tx.hash,
         }
 
-        // Refresh balances
-        await fetchBalances()
+        // Refresh balances and pool info
+        await Promise.all([
+          fetchBalances(),
+          fetchPoolInfo()
+        ])
 
         return {
           success: true,

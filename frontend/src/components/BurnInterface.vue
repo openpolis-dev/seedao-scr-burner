@@ -1,6 +1,6 @@
 <template>
   <div class="burn-interface">
-    <h3 class="burn-title">Burn SCR for USDT</h3>
+    <h3 class="burn-title">Convert SCR to USDT</h3>
 
     <!-- Rate Display -->
     <div v-if="burnRate.displayRate !== '0'" class="rate-display">
@@ -63,6 +63,7 @@ const { isConnected, address, provider } = useWagmiWallet()
 const {
   balances,
   burnRate,
+  hasBurnEnded,
   fetchBurnRate,
   calculateUSDTAmount,
 } = useContract()
@@ -80,6 +81,7 @@ const calculatedUSDT = computed(() => {
 
 const validationError = computed(() => {
   if (!isConnected.value) return 'Please connect your wallet'
+  if (hasBurnEnded.value) return 'Burn period has ended'
   if (!scrAmount.value || parseFloat(scrAmount.value) <= 0) return null
 
   try {

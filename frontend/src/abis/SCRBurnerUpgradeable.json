@@ -24,6 +24,11 @@
     },
     {
       "inputs": [],
+      "name": "BurnEnded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "DenominatorCannotBeZero",
       "type": "error"
     },
@@ -145,6 +150,25 @@
       ],
       "name": "UUPSUnsupportedProxiableUUID",
       "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "oldEndTime",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newEndTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "BurnEndTimeUpdated",
+      "type": "event"
     },
     {
       "anonymous": false,
@@ -370,6 +394,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "burnEndTime",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -582,6 +619,19 @@
       "inputs": [
         {
           "internalType": "uint256",
+          "name": "endTime",
+          "type": "uint256"
+        }
+      ],
+      "name": "setBurnEndTime",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
           "name": "newNumerator",
           "type": "uint256"
         },
@@ -648,13 +698,7 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
+      "inputs": [],
       "name": "withdrawUSDT",
       "outputs": [],
       "stateMutability": "nonpayable",

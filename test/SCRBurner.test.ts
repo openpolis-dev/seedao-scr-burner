@@ -385,6 +385,73 @@ describe("SCRBurnerUpgradeable", function () {
     });
   });
 
+  describe("Burn End Time", function () {
+    it("Should allow burning when no end time is set", async function () {
+      const scrAmount = ethers.parseEther("100");
+      await scrToken.connect(user1).approve(await burnerContract.getAddress(), scrAmount);
+
+      // burnEndTime should be 0 (no end time)
+      expect(await burnerContract.burnEndTime()).to.equal(0);
+
+      // Should burn successfully
+      await expect(burnerContract.connect(user1).burnSCRForUSDT(scrAmount))
+        .to.emit(burnerContract, "SCRBurned");
+    });
+
+    it("Should allow owner to set burn end time", async function () {
+      const futureTime = Math.floor(Date.now() / 1000) + 86400; // 24 hours from now
+
+      await expect(burnerContract.setBurnEndTime(futureTime))
+        .to.emit(burnerContract, "BurnEndTimeUpdated")
+        .withArgs(0, futureTime);
+
+      expect(await burnerContract.burnEndTime()).to.equal(futureTime);
+    });
+
+    it("Should allow burning before end time", async function () {
+      const futureTime = Math.floor(Date.now() / 1000) + 86400; // 24 hours from now
+      await burnerContract.setBurnEndTime(futureTime);
+
+      const scrAmount = ethers.parseEther("100");
+      await scrToken.connect(user1).approve(await burnerContract.getAddress(), scrAmount);
+
+      await expect(burnerContract.connect(user1).burnSCRForUSDT(scrAmount))
+        .to.emit(burnerContract, "SCRBurned");
+    });
+
+    it("Should prevent burning after end time", async function () {
+      const pastTime = Math.floor(Date.now() / 1000) - 3600; // 1 hour ago
+      await burnerContract.setBurnEndTime(pastTime);
+
+      const scrAmount = ethers.parseEther("100");
+      await scrToken.connect(user1).approve(await burnerContract.getAddress(), scrAmount);
+
+      await expect(
+        burnerContract.connect(user1).burnSCRForUSDT(scrAmount)
+      ).to.be.revertedWithCustomError(burnerContract, "BurnEnded");
+    });
+
+    it("Should allow removing end time by setting to 0", async function () {
+      const futureTime = Math.floor(Date.now() / 1000) + 86400;
+      await burnerContract.setBurnEndTime(futureTime);
+
+      // Remove end time
+      await expect(burnerContract.setBurnEndTime(0))
+        .to.emit(burnerContract, "BurnEndTimeUpdated")
+        .withArgs(futureTime, 0);
+
+      expect(await burnerContract.burnEndTime()).to.equal(0);
+    });
+
+    it("Should revert if non-owner tries to set end time", async function () {
+      const futureTime = Math.floor(Date.now() / 1000) + 86400;
+
+      await expect(
+        burnerContract.connect(user1).setBurnEndTime(futureTime)
+      ).to.be.revertedWithCustomError(burnerContract, "OwnableUnauthorizedAccount");
+    });
+  });
+
   describe("View Functions", function () {
     it("Should correctly calculate USDT amount", async function () {
       const scrAmount = ethers.parseEther("100");

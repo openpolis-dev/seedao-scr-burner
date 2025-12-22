@@ -18,6 +18,9 @@ const burnRate = ref<BurnRate>({
   displayRate: '0',
 })
 
+const usdtPoolBalance = ref<bigint>(0n)
+const burnEndTime = ref<bigint>(0n)
+
 const isLoading = ref(false)
 
 export function useContract() {
@@ -144,6 +147,46 @@ export function useContract() {
   }
 
   /**
+   * Fetch pool info (USDT balance and burn end time)
+   */
+  async function fetchPoolInfo(): Promise<void> {
+    console.log('[fetchPoolInfo] Starting...', {
+      hasProvider: !!provider.value,
+    })
+
+    if (!provider.value) {
+      console.log('[fetchPoolInfo] No provider, returning early')
+      return
+    }
+
+    try {
+      isLoading.value = true
+      console.log('[fetchPoolInfo] Fetching pool info from contract...')
+
+      const burnerContract = getBurnerContract(provider.value)
+      const [poolBalance, endTime] = await Promise.all([
+        burnerContract.getUSDTPoolBalance(),
+        burnerContract.burnEndTime(),
+      ])
+
+      console.log('[fetchPoolInfo] Pool info fetched:', {
+        poolBalance: poolBalance.toString(),
+        endTime: endTime.toString(),
+      })
+
+      usdtPoolBalance.value = poolBalance as bigint
+      burnEndTime.value = endTime as bigint
+
+      console.log('[fetchPoolInfo] Pool info updated')
+    } catch (error) {
+      console.error('[fetchPoolInfo] Error fetching pool info:', error)
+      throw error
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
    * Calculate USDT amount for given SCR amount
    */
   function calculateUSDTAmount(scrAmount: string): string {
@@ -176,11 +219,49 @@ export function useContract() {
     usdt: formatUnits(balances.value.usdt, config.tokenDecimals.usdt),
   }))
 
+  /**
+   * Formatted pool balance
+   */
+  const formattedPoolBalance = computed(() =>
+    formatUnits(usdtPoolBalance.value, config.tokenDecimals.usdt)
+  )
+
+  /**
+   * Check if burn has ended
+   */
+  const hasBurnEnded = computed(() => {
+    if (burnEndTime.value === 0n) return false
+    const now = Math.floor(Date.now() / 1000)
+    return BigInt(now) >= burnEndTime.value
+  })
+
+  /**
+   * Get time remaining until burn ends
+   */
+  const timeRemaining = computed(() => {
+    if (burnEndTime.value === 0n) return null
+    const now = Math.floor(Date.now() / 1000)
+    const remaining = Number(burnEndTime.value) - now
+    if (remaining <= 0) return null
+
+    const days = Math.floor(remaining / 86400)
+    const hours = Math.floor((remaining % 86400) / 3600)
+    const minutes = Math.floor((remaining % 3600) / 60)
+    const seconds = remaining % 60
+
+    return { days, hours, minutes, seconds, total: remaining }
+  })
+
   return {
     // State
     balances,
     formattedBalances,
     burnRate,
+    usdtPoolBalance,
+    formattedPoolBalance,
+    burnEndTime,
+    hasBurnEnded,
+    timeRemaining,
     isLoading,
 
     // Contract getters
@@ -191,6 +272,7 @@ export function useContract() {
     // Methods
     fetchBalances,
     fetchBurnRate,
+    fetchPoolInfo,
     calculateUSDTAmount,
   }
 }
