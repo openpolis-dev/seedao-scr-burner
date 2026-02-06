@@ -91,7 +91,6 @@ export const getModal = () => {
           '--w3m-accent': '#7c3aed',
           '--w3m-border-radius-master': '8px',
         },
-        chains: [polygon, hardhatLocal],
         defaultChain: defaultChain,
         featuredWalletIds: [
           'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', // MetaMask
